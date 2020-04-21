@@ -1,0 +1,18 @@
+* {
+  box-sizing: border-box;
+  font-family: cursive;
+}
+.title {
+  display: flex;
+  flex-direction: row;
+  height: 50px;
+  width: 200px;
+  align-items: center;
+  justify-content: left;
+}
+
+h2 {
+  padding: 4px;
+  margin: 0px;
+  color: rgb(250, 112, 178);
+}
