@@ -2,15 +2,13 @@
 
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
-const marginLeft = 8;
-const marginTop = 50;
 const canvasWidth = 400;
 const canvasHeight = 400;
 const boardLength = 12;
 const pixelWidth = canvasWidth / boardLength;
 const pixelHeight = canvasHeight / boardLength;
 
-let selectedColor = "#111";
+let selectedColor = "#63C1FF";
 let mousedown = false;
 let enable = true;
 
@@ -21,18 +19,17 @@ canvas.addEventListener("mousedown", (e) => {
 });
 canvas.addEventListener("mouseup", () => mousedown = false);
 
-
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
-ctx.strokeStyle = "#000";
+ctx.strokeStyle = "#b9b9b9";
 ctx.lineWidth = 1;
 function drawBoard() {
   ctx.rect(0, 0, canvasWidth, canvasHeight);
   ctx.stroke();
   for (let i = 0; i < boardLength; i++) {
-    const posX = Math.round(i * pixelWidth) + .5
-    const posY = Math.round(i * pixelHeight) + .5
+    const posX = Math.round(i * pixelWidth) + .5;
+    const posY = Math.round(i * pixelHeight) + .5;
     if (i * pixelHeight == 0) {
       continue;
     }
@@ -51,14 +48,25 @@ function paintBox(e) {
   if (!enable) return;
   if (!mousedown) return;
   e.preventDefault();
+
+  // X position for canvas
+  const marginLeft = window.innerWidth / 2 - canvasWidth / 2;
+  // y position of canvas
+  const marginTop = canvas.getBoundingClientRect().y;
+  /*
+    Transforms mouse positions (x,y) into coordinates 
+    based on canvas grid and position 
+  */
   const coordX = Math.floor((e.clientX - marginLeft) / pixelWidth * .99);
   const coordY = Math.floor((e.clientY - marginTop) / pixelHeight * .99);
+
   const positionX = (coordX * pixelWidth);
   const positionY = (coordY * pixelHeight);
+
   ctx.strokeStyle = selectedColor;
   ctx.fillStyle = selectedColor;
-  ctx.fillRect(positionX, positionY, pixelWidth, pixelHeight)
-  ctx.strokeRect(positionX, positionY, pixelWidth, pixelHeight)
+  ctx.fillRect(positionX, positionY, pixelWidth, pixelHeight);
+  ctx.strokeRect(positionX, positionY, pixelWidth, pixelHeight);
 }
 
 drawBoard();
@@ -67,7 +75,6 @@ drawBoard();
 const pickr = Pickr.create({
   el: '.color-picker',
   theme: 'nano', // or 'monolith', or 'nano'
-
   swatches: [
     'rgba(244, 67, 54, 1)',
     'rgba(233, 30, 99, 0.95)',
@@ -94,12 +101,32 @@ const pickr = Pickr.create({
       hex: true,
       rgba: true,
       input: true,
+      save: true,
     }
   }
 });
+
+
+
+const saveBtn = document.querySelector(".pcr-save");
+saveBtn.setAttribute('type', 'hidden');
+let changeTimeout;
+
 pickr.on('init', () => {
-  // pickr.setColor(selectedColor);
+  pickr.setColor(selectedColor);
 });
-pickr.on('change', color => selectedColor = color.toHEXA().toString());
+
+pickr.on('change', color => {
+  selectedColor = color.toHEXA().toString();
+  if (changeTimeout) {
+    clearTimeout(changeTimeout);
+  }
+  changeTimeout = setTimeout(() => saveBtn.click(), 500);
+});
+
+pickr.on('save', color => {
+  selectedColor = color.toHEXA().toString();
+})
+
 pickr.on('show', () => enabled = false);
-pickr.on('hide', () => setTimeout(() => { enabled = true }, 300))
+pickr.on('hide', () => setTimeout(() => { enabled = true }, 300));
